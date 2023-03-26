@@ -1,0 +1,8 @@
+git add . - totul
+git add file.txt
+git commit -m "mesaj"
+git push la final
+
+master - admura principala, main branch
+fiecare modificare mic == branch nou
+ale/bugrix

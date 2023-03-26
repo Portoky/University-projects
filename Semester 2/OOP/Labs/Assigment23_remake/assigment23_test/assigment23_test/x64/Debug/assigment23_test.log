@@ -1,0 +1,21 @@
+﻿  pch.cpp
+  assigment23_test.cpp
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,28): error C2664: 'char *getType(Offer *)': cannot convert argument 1 from 'TElem' to 'Offer *'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,39): message : Conversion from 'void*' to pointer to non-'void' requires an explicit cast
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\Offers.h(13,7): message : see declaration of 'getType'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,28): message : while trying to match the argument list '(TElem)'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,12): error C2661: 'Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual': no overloaded function takes 1 arguments
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\UnitTest\include\CppUnitTestAssert.h(139,36): message : could be 'void Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual(const T &,const T &,const wchar_t *,const Microsoft::VisualStudio::CppUnitTestFramework::__LineInfo *)'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,12): message : 'void Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual(const T &,const T &,const wchar_t *,const Microsoft::VisualStudio::CppUnitTestFramework::__LineInfo *)': expects 4 arguments - 1 provided
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(33,12): message : while trying to match the argument list '()'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(34,4): error C2146: syntax error: missing ';' before identifier 'undo'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(35,11): error C2664: 'int getPrice(Offer *)': cannot convert argument 1 from 'TElem' to 'Offer *'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(35,23): message : Conversion from 'void*' to pointer to non-'void' requires an explicit cast
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\Offers.h(16,5): message : see declaration of 'getPrice'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(35,11): message : while trying to match the argument list '(TElem)'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(35,4): error C3861: 'assert': identifier not found
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(37,4): error C3861: 'assert': identifier not found
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(39,4): error C3861: 'assert': identifier not found
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(41,4): error C2660: 'destroyService': function does not take 1 arguments
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\Service.h(24,6): message : see declaration of 'destroyService'
+D:\Universitate\Semester 2\OOP\Labs\Assigment23_remake\assigment23_test\assigment23_test\assigment23_test.cpp(41,4): message : while trying to match the argument list '(Service *)'

@@ -1,0 +1,131 @@
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------- HOGYAN KÉSZÍTSÜNK FP PROJEKTETEK -----------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+PROJEKT STRUKTÚRA:
+    + src
+	+ domain
+	+ validation
+	+ repo
+	+ servicies
+	+ ui
+	+ errors
+	+ main.py
+	+ txt/binary file-ok, amiket majd a repo-ba töltünk program elején
+
+    + tests
+	+ külön package minden entity-nek
+	
+
+DOMAIN: 
+	- __init__ = minden property private (__-sal kezdődik)
+	- getter, setter methodok
+		!!! ne használjunk @property-t, mert egy rakás szar (Gabi is alátámasztja), helytte get_[proprty_name] és set_[property_name] !!!
+	- __equ__ = kell overload-olni, két entity akkor egyforma, ha ugyanaz az ID-jük
+		(ha other nem entity típusú, raise ValueError)
+	- __str__ = visszatéríti szövegként az entity-t
+	- __hash__ = implementálni, ha key-ként akarod használni az entity-t hashmap-ben (pl. statisztikák készítésekor)
+
+	* itt implementáljuk azokat a class-eket s, amik nem entity-k, hanem egy másik layerből (legtöbbször a serviciesből) csoportosítanak
+	  adatokat (pl. a statisztikáknál)
+	- ezeknél a classknél a methodok: __init__, getters, a megfelelő operatátorok overload-jai, ha kellenek, plusz function-ök, __str__
+
+
+VALIDATION:
+	- static class
+	- minden entity-nek külön van validatorja
+	- egy validator-ban több function is lehet, pl. bankkártya validálásakor (minden országban más a valid formátum)
+
+
+REPO: 
+	- EGY repo kell minden entitynek
+	- 7 function van a repoban (__init__, __len__, get_all, get_by_id, add, remove, update)
+		!!! Ezek csak egyszerű dolgokat csinálnak, minden bonyolult dolog a servicies-ben van implementálva !!!
+	- az adatokat tárolhatjuk listben, dictionary-ban vagy saját iterable DS-ben is
+	- REPO => ANOTHER REPO TYPES
+	
+	
+	- minden más repo type-ot a REPO classból származtatunk
+	- a repo type-ok lehetnek: file_repo, binary_repo, database_repo, xml_repo, json_repo, stb.
+	- minden repo type-nak külön osztálya van, és felülírja a repo function-jeit
+	- 2 function van pluszban: read_all_from_file, write_all_to_fle
+
+		* esetenként szükség van egy append_to_file(entity) function-re is
+
+
+SERVICIES:
+	- minden entitynek külön srv class-ja van
+	- itt implementáljuk a bonyolultabb funkciókat is
+	- azok a funkciók, amelyeknek van megfelelőjük a UI-ban, _srv-ben végződnek
+	- a többi function vagy private, vagy egy másik service osztály használja
+	- szinte mindig kell implementálni az add, remove, update, get_all funkciók srv változatát
+	
+	- FUNKCIÓK A SRV-ben:
+		+ add
+		+ remove
+		+ update
+		+ list
+		+ filter (ez jó lehet akkor is, ha egy másik srv class akar törölni ebből a repo-ból több elemet)
+		+ rent/return
+		+ statistics
+		+ undo/redo
+		+ generate initial items
+		+ stb.
+	
+	- amit lehet, private function-vé teszünk, így azokat nem kell tesztelni !!!
+		(minden bonyolultabb dolgot egy srv-ben külön function-be írunk, azok viszont nem fognak _srv-ben végződni)
+
+	!!! NEM MINDEN SRV-NEK VAN REPOJA -> REPOJA AZOKNAK VAN, AMIKET BEÍRNÁNK EGY TXT-FILEBA IS, HOGY MAJD KÖVETKEZŐ FUTTATÁSKOR ONNAN TUDJUK BETÖLTENI AZ ADATOKAT !!!
+		pl. az undo/redo srv-nek nincs repoja, mert az undo/redo history eltűnik akkor, amikor a programot bezárjuk
+		(ilyenkor nem repo-t adunk át a srv-nek, hanem ott készítünk egy üres list-et vagy dictionary-t)
+
+
+UI:
+	- minden function private (__-vel kezdődik), kivéve a run_program
+	- minden funkció function-je _ui-ban végzdődik
+	- minden funkciónak külön UI function-je van
+	- a UI function-ben történik az exception-handling is
+
+	* a UI lehet console, window, vagy egyéb
+		- több fajtát is meg lehet írni, a main-ben mindig azt indítjuk el, amelyiket akarjuk
+
+	!!! Csak a UI-ban van típuskonverzió, ha helytelen típust ad meg a user, ValueError !!!
+
+	- GUI: letölteni egy package-et erre a célra, használni az ott implementált function-öket
+
+
+EXCEPTIONS:
+	- custom class-ok
+	- különböző layerek -> különböző exception-ök
+		+ domain: ValueError (általában csak az __eq__ functionnél fordul elő, amikor a self és az other nem ugyanolyan típusúak)
+		+ validaton: ValidError (minden hibát összegyűjtünk, a végén ValidErrorként térítjük vissza)
+		+ repo: RepoError (duplicate id, invalid id)
+		+ servcies: minden srv classnek külön error-ja van (pl. UndoRedoError az undo_srv.py-nak), megjelenhet továbbá a ValueError, ValidError és RepoError is
+		+ ui: nincs exception típusa, helyette itt dolgozunk fel minden eddigi error-t
+		      (ValueError-ok vannak minden helytelen adattípusnál)
+
+
+MAIN:
+	- itt hozzuk létre a repokat, a srv-eket, a ui-t
+	- itt generáljuk le az initial item-eket is
+	- a UI::run_program indítja el a programot
+
+
+TESTS:
+	- minden entity-nek külön package
+	- unittest-eket írunk, a Covarage-vel külön le tudjuk tesztelni, hogy minden rész teljesen leteszteli-e a neki kijelölt classt/class-eket
+
+
+OTHER:
+	- HASZNOS HA, A PROGRAM KÉSZÍTÉSE ELŐTT FELRAJZOLJUK A LAYEREKET, A LAYEREKEN BELÜL AZ ENTITY-KET, A REPOKAT, A SRV-EKET ÉS A UI-T, ÉS NYILAKAT HÚZUNK BE AZ ÁBRÁRA
+	- A NYILAK AZT JELENTIK, HOGY MELYIK REPO MELYK DOMAIN-NEL, MELYIK SERVICE MELYIK REPOVAL/REPOKKAL, ESETENKÉNT MELYIK SRV-EKKEL DOLGOZK
+
+	!!! A LEGFONTOSABB, HOGY ELKERÜLJÜK A KÖRÖKET AZ ÁBRÁN, ÍGY LESZ JÓL STRUKTURÁLT A PROGRAMUNK !!!
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,19 @@
+2.
+01100011 = 63h
+10011100 = 9C
+
+3. a = 1a2b = 0001101000101011
+b = 00111010, 01001101
+c =  
+2B1A 3C 4D 4D3C2B1A => eax = 4d 4d 3c 1a
+
+7.
+ 12 ef cd ab 1a 00 1a 00 1a 00 61 61 61 61 61 61 -> $ = 16
+8.
+0hDC == DCh you can put the h in front as well == DCx = hexa as well
+10
+Neg 1) cv to binary complement to 1, complement to two (adding 1)
+2) substract 16 - your number : rest = 
+-5; 16-5 = 11 = B FB
+-13; 16-13 = 3; F3
+-40; 48 - 40 = 8, D8

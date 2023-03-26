@@ -1,0 +1,60 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)      
+     4                                  global _convert
+     5                                  
+     6                                  
+     7                                  ; our data is declared here (the variables needed by our program)
+     8                                  segment data use32 class=data public
+     9                                      ; ...
+    10 00000000 303132333435363738-         table db "0123456789ABCDEF"
+    10 00000009 39414243444546     
+    11 00000010 00000000                    resultAddress dd 0
+    12                                  ; our code starts here
+    13                                  segment code use32 class=code public
+    14                                      _convert:
+    15                                          ; ...
+    16 00000000 55                              push ebp
+    17 00000001 89E5                            mov ebp, esp
+    18 00000003 8B5508                          mov edx, [ebp+8]
+    19                                          
+    20 00000006 8B450C                          mov eax, [ebp+12]
+    21 00000009 A3[10000000]                    mov [resultAddress], eax
+    22                                          
+    23 0000000E 8B3D[10000000]                  mov edi, [resultAddress]
+    24 00000014 BB[00000000]                    mov ebx, table
+    25 00000019 BF30000000                      mov edi, 48 
+    26 0000001E B908000000                      mov ecx, 8
+    27                                          for:
+    28 00000023 B000                                mov al, 0
+    29                                              
+    30 00000025 D1E2                                shl edx, 1
+    31 00000027 7302                                jnc .skip1
+    32 00000029 0408                                add al, 8
+    33                                              .skip1:
+    34                                              
+    35 0000002B D1E2                               shl edx, 1
+    36 0000002D 7302                               jnc .skip2
+    37 0000002F 0404                               add al, 4
+    38                                             .skip2:
+    39                                             
+    40 00000031 D1E2                               shl edx, 1
+    41 00000033 7302                               jnc .skip3
+    42 00000035 0402                               add al, 2
+    43                                             .skip3:
+    44                                             
+    45 00000037 D1E2                               shl edx, 1
+    46 00000039 7302                               jnc .skip4
+    47 0000003B 0401                               add al, 1
+    48                                             .skip4:
+    49                                              
+    50 0000003D D7                                  xlat
+    51 0000003E AA                                  stosb
+    52 0000003F E2E2                            loop for
+    53                                          
+    54 00000041 A1[10000000]                    mov eax, [resultAddress]
+    55                                          
+    56 00000046 89EC                            mov esp, ebp
+    57 00000048 5D                              pop ebp
+    58                                          
+    59 00000049 C3                              ret

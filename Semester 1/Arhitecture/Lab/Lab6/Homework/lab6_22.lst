@@ -1,0 +1,54 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14 00000000 6C6D6F786E6869              src db 'lmoxnhi'
+    15                                      len_src equ $-src
+    16 00000007 696A6B6D776F70              dst db 'ijkmwop'
+    17                                      len_dst equ $-dst
+    18 0000000E 6D6C6D6F6F6C78786E-         input db 'mlmoolxxnhii'
+    18 00000017 686969             
+    19                                      len_input equ $-input
+    20 0000001A 0000                        ind dw 0
+    21                                  ; our code starts here
+    22                                  segment code use32 class=code
+    23                                      start:
+    24                                          ; ...
+    25 00000000 B90C000000                      mov ecx, len_input
+    26 00000005 BE[0E000000]                    mov esi, input
+    27 0000000A E320                            jecxz theend
+    28                                          main_loop:
+    29                                              
+    30 0000000C AC                                  lodsb; al, element of the input
+    31 0000000D 56                                  push esi ;stack = esi
+    32                                              
+    33 0000000E BF[00000000]                        mov edi, src ;src[i] -> i = edi
+    34                                              find_element:
+    35 00000013 AE                                      scasb ; cmp al, es:edi while not equal
+    36 00000014 75FD                                    jne find_element
+    37                                              
+    38 00000016 81EF[00000000]                      sub edi, src; we obtain a scalar value, the index where we found the element in src[]
+    39 0000001C 4F                                  dec edi
+    40 0000001D 81C7[07000000]                      add edi, dst; dst[edi] == dst[i]
+    41                                              
+    42 00000023 89FE                                mov esi, edi
+    43 00000025 5F                                  pop edi; points to the list input
+    44 00000026 4F                                  dec edi ;it was incremented because of the lodsb
+    45 00000027 A4                                  movsb ;[EDI] = [ESI]
+    46 00000028 89FE                                mov esi, edi 
+    47                                              
+    48 0000002A E2E0                            loop main_loop
+    49                                          
+    50                                          theend:
+    51                                          ; exit(0)
+    52 0000002C 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    53 0000002E FF15[00000000]                  call    [exit]       ; call exit to terminate the program

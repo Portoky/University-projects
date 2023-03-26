@@ -1,0 +1,31 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14                                  
+    15                                  ; our code starts here
+    16                                  segment code use32 class=code
+    17                                      start:
+    18                                          ; ...
+    19 00000000 B0C8                            mov al,-56 ; AL = C8h = 200 in unsigned interpretation
+    20 00000002 B364                            mov bl,100
+    21 00000004 38D8                            cmp al, bl ;fictive subtraction al-bl which sets the flags (for our case, we will have SF = 0, OF = 1, CF = 0 and ZF = 0)
+    22 00000006 7C04                            JNGE et2 ;verify condition JNGE - Jump if not greater or equal 
+    23                                          ;(SIGNED comparison -56 versus 100) 
+    24                                          ;verifies in fact if the two flags, SF and OF, have different values 
+    25                                          ; Considering that in our case SF=0 and OF=1, so SF <> OF, the condition is fullfilled (and truly -56 is „NOT GREATER OR ;EQUAL” to 100) so the jump to label et2 will be performed
+    26 00000008 66BA0100                        mov dx,1 
+    27                                          et2:
+    28 0000000C 66B90100                        mov cx,1
+    29                                          ; exit(0)
+    30 00000010 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    31 00000012 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

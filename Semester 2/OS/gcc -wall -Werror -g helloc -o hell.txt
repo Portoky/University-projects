@@ -1,0 +1,1 @@
+gcc -wall -Werror -g helloc -o hello (!!! not the same otherwise overwrites it)

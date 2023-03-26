@@ -1,0 +1,12 @@
+RO650,Cluj,5:45,Bucuresti,6:40 
+0B3302,Cluj,7:15,Bucuresti,8:15 
+SLD322,Timisoara,9:5,Cluj,10:0 
+RO643,Bucuresti,10:15,Cluj,11:10 
+RO734,Timisoara,10:45,Iasi,12:25 
+KL2710,Timisoara,14:25,Bucuresti,15:40 
+RO745,Cluj,12:50,Iasi,14:5 
+RO746,Iasi,14:30,Cluj,15:50 
+RO647,Bucuresti,18:5,Cluj,19:0 
+KL2706,Bucuresti,18:10,Timisoara,19:5 
+RO733,Iasi,8:30,Timisoara,10:20 
+1,Csicso,7:32,Madefalva,9:15 

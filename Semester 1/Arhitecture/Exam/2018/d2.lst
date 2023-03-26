@@ -1,0 +1,56 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global b_module  ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     5                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+     6                                  
+     7                                  ; our data is declared here (the variables needed by our program)
+     8                                  segment data use32 class=data
+     9                                      ; ...
+    10 00000000 FFFFFFFF                    rank dd -1
+    11 00000004 FFFFFFFF                    bytes dd -1
+    12 00000008 00000000                    sum dd 0
+    13                                  ; our code starts here
+    14                                  segment code public use32 class=code
+    15                                      b_module:
+    16 00000000 BF00000000                      mov edi, 0; index
+    17 00000005 8B74240C                        mov esi, [esp + 12]; dd_string
+    18 00000009 8B4C2410                        mov ecx, [esp + 16]; len
+    19                                          
+    20                                          .for:
+    21 0000000D B200                                mov dl, 0; in edx we save the rank
+    22 0000000F B304                                mov bl, 4;indexing
+    23 00000011 B000                                mov al, 0;calculating the max byte
+    24                                              .while:
+    25 00000013 3806                                    cmp [esi], al
+    26 00000015 7204                                    jb .skip
+    27 00000017 8A06                                    mov al, [esi]
+    28 00000019 88DA                                    mov dl, bl
+    29                                                  .skip:
+    30 0000001B 46                                      inc esi
+    31 0000001C FECB                                    dec bl
+    32 0000001E 80FB00                                  cmp bl, 0
+    33 00000021 77F0                                ja .while
+    34                                              
+    35 00000023 6698                                cbw
+    36 00000025 98                                  cwde
+    37 00000026 0105[08000000]                      add [sum], eax; adding to the sum the chosen byte
+    38                                              
+    39 0000002C 037C2404                            add edi, [esp + 4]; we pont into the string bytes the byte at the corresponding index
+    40 00000030 8807                                mov [edi], al
+    41                                              
+    42 00000032 2B7C2404                            sub edi, [esp + 4]
+    43 00000036 037C2408                            add edi, [esp + 8]; we point to the string rank ath the corresponding index
+    44 0000003A 8817                                mov [edi], dl
+    45                                              
+    46 0000003C 2B7C2408                            sub edi, [esp+8]; now edi is an index again
+    47 00000040 47                                  inc edi
+    48                                          
+    49 00000041 E2CA                            loop .for
+    50                                          
+    51 00000043 A1[08000000]                    mov eax, [sum]
+    52                                          
+    53 00000048 C3                              ret
+    54                                              
+    55                                          
+    56                                          

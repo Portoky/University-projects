@@ -1,0 +1,66 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit, printf, common_prefix              ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll
+     9                                  import printf msvcrt.dll  
+    10                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14 00000000 616263643132333500          s1 db "abcd1235", 0
+    15                                      len1 equ $-s1
+    16 00000009 61626364313200              s2 db "abcd12", 0
+    17                                      len2 equ $-s2
+    18 00000010 61626300                    s3 db "abc", 0  
+    19                                      len3 equ $-s3
+    20                                      
+    21 00000014 00<rept>                    result times len3+len1+len2 db  0
+    22 00000028 25730A00                    message db "%s", 0ah, 0
+    23                                      
+    24                                  ; our code starts here
+    25                                  segment code use32 class=code
+    26                                      start:
+    27                                          ; ...
+    28 00000000 68[14000000]                    push result
+    29 00000005 68[00000000]                    push s1
+    30 0000000A 68[09000000]                    push s2
+    31 0000000F E8(00000000)                    call common_prefix; now in ecx we have  the length of the prefix
+    32 00000014 83C40C                          add esp, 4*3
+    33                                          
+    34                                          ;printing
+    35 00000017 68[14000000]                    push result
+    36 0000001C 68[28000000]                    push message
+    37 00000021 FF15[00000000]                  call [printf]
+    38 00000027 83C408                          add esp, 4*2
+    39                                          
+    40 0000002A 68[14000000]                    push result
+    41 0000002F 68[00000000]                    push s1
+    42 00000034 68[10000000]                    push s3
+    43 00000039 E8(00000000)                    call common_prefix
+    44 0000003E 83C40C                          add esp, 4*3
+    45                                          
+    46 00000041 68[14000000]                    push result
+    47 00000046 68[28000000]                    push message
+    48 0000004B FF15[00000000]                  call [printf]
+    49 00000051 83C408                          add esp, 4*2
+    50                                          
+    51 00000054 68[14000000]                    push result
+    52 00000059 68[09000000]                    push s2
+    53 0000005E 68[10000000]                    push s3
+    54 00000063 E8(00000000)                    call common_prefix
+    55 00000068 83C40C                          add esp, 4*3
+    56                                          
+    57 0000006B 68[14000000]                    push result
+    58 00000070 68[28000000]                    push message
+    59 00000075 FF15[00000000]                  call [printf]
+    60 0000007B 83C408                          add esp, 4*2
+    61                                          
+    62                                          
+    63                                          
+    64                                          ; exit(0)
+    65 0000007E 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    66 00000080 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

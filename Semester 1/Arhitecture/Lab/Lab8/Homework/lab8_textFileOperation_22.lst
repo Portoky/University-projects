@@ -1,0 +1,66 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit, fopen, fprintf, fclose               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    
+     9                                  import fopen msvcrt.dll    
+    10                                  import fprintf msvcrt.dll    
+    11                                  import fclose msvcrt.dll    
+    12                                  
+    13                                  ; our data is declared here (the variables needed by our program)
+    14                                  segment data use32 class=data
+    15                                      ; ...
+    16 00000000 6E756D6265722E7478-         file_name db "number.txt", 0
+    16 00000009 7400               
+    17 0000000B 6100                        access_mode db "a", 0
+    18 0000000D FFFFFFFF                    descriptor dd -1
+    19 00000011 97E60100                    number dd 124567
+    20 00000015 0A00                        divisor dw 10
+    21 00000017 00000000                    digit dd 0
+    22 0000001B 25750A00                    line db '%u', 0ah, 0; 0ah -> newline character in ascii
+    23                                  ; our code starts here
+    24                                  segment code use32 class=code
+    25                                      start:
+    26                                          ; ...
+    27                                          ;open/create file_name
+    28 00000000 68[0B000000]                    push dword access_mode
+    29 00000005 68[00000000]                    push dword file_name
+    30 0000000A FF15[00000000]                  call [fopen]
+    31 00000010 83C408                          add esp, 4*2
+    32                                          
+    33 00000013 83F800                          cmp eax, 0
+    34 00000016 745F                            je final
+    35 00000018 A3[0D000000]                    mov [descriptor], eax
+    36                                          
+    37                                          
+    38                                          while:
+    39 0000001D 66A1[11000000]                      mov ax, [number]
+    40 00000023 668B15[13000000]                    mov dx, [number + 2] ;little endian!
+    41 0000002A 66F735[15000000]                    div word [divisor];ax = rest of the number, dx = last digit
+    42 00000031 C705[11000000]0000-                 mov dword [number], 0 ;we clear what was before
+    42 00000039 0000               
+    43 0000003B 66A3[11000000]                      mov [number], ax; update with one less digit
+    44 00000041 668915[17000000]                    mov [digit], dx; since there only one digit, no need to clear beforehand
+    45                                              
+    46                                              ;displaying the digit
+    47 00000048 FF35[17000000]                      push dword [digit]
+    48 0000004E 68[1B000000]                        push dword line
+    49 00000053 FF35[0D000000]                      push dword [descriptor]
+    50 00000059 FF15[00000000]                      call [fprintf]
+    51 0000005F 83C40C                              add esp, 4*3
+    52                                              
+    53 00000062 833D[11000000]00                    cmp dword [number], 0
+    54 00000069 75B2                                jne while
+    55                                          
+    56                                          ;closing the textfile
+    57 0000006B FF35[0D000000]                  push dword [descriptor]
+    58 00000071 FF15[00000000]                  call [fclose]
+    59                                          
+    60                                          
+    61                                          final:
+    62                                          ; exit(0)
+    63 00000077 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    64 00000079 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

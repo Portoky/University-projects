@@ -1,0 +1,50 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14 00000000 5777BE9B                    a dd 10011011101111100111011101010111b
+    15 00000004 5577                        b dw 0111011101010101b
+    16 00000006 00000000                    c dd 0
+    17                                  ; our code starts here
+    18                                  segment code use32 class=code
+    19                                      start:
+    20                                          ; ...
+    21 00000000 BB00000000                      mov ebx, 0; we compute the result in ebx
+    22 00000005 A1[00000000]                    mov eax, [a]
+    23 0000000A F7D0                            not eax; we inverted [a]
+    24 0000000C C1E814                          shr eax, 20 ;bits 20-24 -> 0-4
+    25 0000000F BB0F000000                      mov ebx, 1111b ;ebx = 00...1111b
+    26 00000014 21C3                            and ebx, eax ;ebx : the bits 0-4 of C are the invert of the bits 20-24 of A
+    27                                          
+    28 00000016 B800000000                      mov eax, 0
+    29 0000001B B8E0010000                      mov eax, 111100000b; eax = 0...1111000000b
+    30 00000020 09C3                            or ebx, eax ;the bits 5-8 of C have the value 1
+    31                                          
+    32 00000022 B800000000                      mov eax, 0
+    33 00000027 66B800F0                        mov ax, 1111000000000000b
+    34 0000002B 662305[04000000]                and ax, [b]; now ax contains the bits 12-15 of B
+    35 00000032 C1E803                          shr eax, 3 ;now these bits are on position 9-12
+    36 00000035 09C3                            or ebx, eax
+    37                                          
+    38 00000037 B800000000                      mov eax, 0
+    39 0000003C B880030000                      mov eax, 1110000000b
+    40 00000041 2305[00000000]                  and eax, [a]
+    41 00000047 C1E006                          shl eax, 6
+    42 0000004A 09C3                            or ebx, eax;the bits 13-15 of C are the same as the bits 7-9 of A
+    43                                          
+    44 0000004C 891D[06000000]                  mov [c], ebx
+    45                                          
+    46                                          
+    47                                          
+    48                                          ; exit(0)
+    49 00000052 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    50 00000054 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

@@ -1,0 +1,46 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14 00000000 785634124D3C2B1A76-         s DD 12345678h, 1A2B3C4Dh, 0FE98DC76h
+    14 00000009 DC98FE             
+    15                                      len equ ($-s) / 4
+    16 0000000C 0000<rept>                  d times len dw 0 ;reserve space for most of elements that can be  in our result list
+    17 00000012 03                          three db 3
+    18                                  ; our code starts here
+    19                                  segment code use32 class=code
+    20                                      start:
+    21                                          ; ...
+    22 00000000 B903000000                      mov ecx, len
+    23 00000005 B800000000                      mov eax, 0
+    24 0000000A BE[00000000]                    mov esi, s
+    25 0000000F BF[0C000000]                    mov edi, d
+    26 00000014 E316                            jecxz end
+    27                                          repeta:
+    28                                              
+    29 00000016 AD                                  lodsd; in eax we have the one element from the list
+    30 00000017 C1E818                              shr eax, 24; now we have the needed byte in al
+    31 0000001A 88C3                                mov bl, al ;save the byte for later
+    32 0000001C F635[12000000]                      div byte [three] ; al = /, ah = %
+    33 00000022 80FC00                              cmp ah, 0
+    34 00000025 7503                                jne dont_add_element ;if ah != 0
+    35 00000027 88D8                                mov al, bl;we get back the saved byte
+    36 00000029 AA                                  stosb ; in d we put the byte if needed
+    37                                              
+    38                                              
+    39                                              dont_add_element:
+    40                                         
+    41 0000002A E2EA                            loop repeta
+    42                                          end:
+    43                                          ; exit(0)
+    44 0000002C 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    45 0000002E FF15[00000000]                  call    [exit]       ; call exit to terminate the program

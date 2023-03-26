@@ -1,0 +1,131 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit, fopen, fclose, fscanf, printf            
+     8                                  import printf msvcrt.dll
+     9                                  import fopen msvcrt.dll
+    10                                  import fclose msvcrt.dll
+    11                                  import fscanf msvcrt.dll
+    12                                  import exit msvcrt.dll
+    13                                  
+    14                                  ; our data is declared here (the variables needed by our program)
+    15                                  segment data use32 class=data
+    16                                      ; ...
+    17 00000000 6E756D626572732E74-         file_name_in db "numbers.txt", 0
+    17 00000009 787400             
+    18 0000000C 7072696D65732E7478-         file_name_out db "primes.txt", 0
+    18 00000015 7400               
+    19 00000017 00000000                    descriptor_in dd 0
+    20 0000001B 00000000                    descriptor_out dd 0
+    21 0000001F 7200                        access_in db "r", 0
+    22 00000021 7700                        access_out db "w",0
+    23 00000023 256400                      format db "%d", 0
+    24 00000026 25642000                    formatout db "%d ", 0
+    25 0000002A 00000000                    number dd 0
+    26                                  ; our code starts here
+    27                                  segment code use32 class=code
+    28                                      prime:
+    29 00000000 8B442404                        mov eax, [esp+4]
+    30                                          ;mov ax, [esp+4]
+    31                                          ;mov dx, [esp+6]
+    32                                          
+    33 00000004 83F801                          cmp eax, 1
+    34 00000007 7628                            jbe .endwhile1
+    35 00000009 83F802                          cmp eax, 2
+    36 0000000C 7423                            je .endwhile1
+    37                                          
+    38 0000000E B902000000                      mov ecx, 2
+    39                                          .while:
+    40 00000013 BA00000000                          mov edx, 0
+    41                                              
+    42 00000018 50                                  push eax
+    43 00000019 F7F1                                div ecx
+    44 0000001B 58                                  pop eax
+    45                                              
+    46 0000001C 83FA00                              cmp edx, 0
+    47 0000001F 7409                                je .endwhile2
+    48                                              
+    49                                              
+    50                                              
+    51 00000021 41                                  inc ecx
+    52 00000022 3B4C2404                            cmp ecx, [esp+4]
+    53 00000026 72EB                                jb .while
+    54                                              
+    55 00000028 EB07                            jmp .endwhile1
+    56                                          
+    57                                          .endwhile2:
+    58 0000002A B800000000                      mov eax, 0
+    59 0000002F EB05                            jmp .end
+    60                                          
+    61                                          .endwhile1:
+    62 00000031 B801000000                      mov eax, 1
+    63                                          
+    64                                          .end:
+    65 00000036 C3                              ret
+    66                                  
+    67                                  
+    68                                      start:
+    69                                          ; ...
+    70 00000037 68[1F000000]                    push dword access_in
+    71 0000003C 68[00000000]                    push dword file_name_in
+    72 00000041 FF15[00000000]                  call [fopen]
+    73 00000047 83C408                          add esp, 4*2
+    74                                          
+    75 0000004A 83F800                          cmp eax, 0
+    76 0000004D 0F8487000000                    je end1
+    77 00000053 A3[17000000]                    mov [descriptor_in], eax
+    78                                          
+    79 00000058 68[21000000]                    push dword access_out
+    80 0000005D 68[0C000000]                    push dword file_name_out
+    81 00000062 FF15[00000000]                  call [fopen]
+    82 00000068 83C408                          add esp, 4*2
+    83                                          
+    84 0000006B 83F800                          cmp eax, 0
+    85 0000006E 745B                            je end2
+    86 00000070 A3[1B000000]                    mov [descriptor_out], eax
+    87                                          
+    88                                          
+    89                                          while:
+    90 00000075 68[2A000000]                        push dword number
+    91 0000007A 68[23000000]                        push dword format
+    92 0000007F FF35[17000000]                      push dword [descriptor_in]
+    93 00000085 FF15[00000000]                      call [fscanf]
+    94 0000008B 83C40C                              add esp, 4*3
+    95                                              
+    96 0000008E 83F8FF                              cmp eax, -1;we didnt read anything -> end of file
+    97 00000091 7429                                je endwhile
+    98                                              
+    99 00000093 FF35[2A000000]                      push dword [number]
+   100 00000099 E862FFFFFF                          call prime
+   101 0000009E 83C404                              add esp, 4
+   102                                          
+   103 000000A1 83F801                              cmp eax, 1
+   104 000000A4 7514                                jne skip
+   105                                              
+   106 000000A6 FF35[2A000000]                      push dword [number]
+   107 000000AC 68[26000000]                        push dword formatout
+   108 000000B1 FF15[00000000]                      call [printf]
+   109 000000B7 83C408                              add esp, 4*2
+   110                                              
+   111                                              skip:
+   112                                          
+   113 000000BA EBB9                            jmp while
+   114                                          endwhile:
+   115                                          
+   116                                          
+   117 000000BC FF35[1B000000]                  push dword [descriptor_out]
+   118 000000C2 FF15[00000000]                  call [fclose]
+   119 000000C8 83C404                          add esp, 4
+   120                                          
+   121                                          end2:
+   122 000000CB FF35[17000000]                  push dword [descriptor_in]
+   123 000000D1 FF15[00000000]                  call [fclose]
+   124 000000D7 83C404                          add esp, 4
+   125                                          
+   126                                          end1:
+   127                                          ; exit(0)
+   128 000000DA 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+   129 000000DC FF15[00000000]                  call    [exit]       ; call exit to terminate the program

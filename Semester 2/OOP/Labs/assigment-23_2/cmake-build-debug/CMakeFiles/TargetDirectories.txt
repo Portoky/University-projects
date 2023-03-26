@@ -1,0 +1,3 @@
+D:/Universitate/Semester 2/OOP/Labs/assigment-23_2/cmake-build-debug/CMakeFiles/assigment_23_2.dir
+D:/Universitate/Semester 2/OOP/Labs/assigment-23_2/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Universitate/Semester 2/OOP/Labs/assigment-23_2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

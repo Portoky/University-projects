@@ -1,0 +1,93 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit, fopen, fclose, fread, printf               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll
+     9                                  import fopen msvcrt.dll
+    10                                  import fclose msvcrt.dll
+    11                                  import fread msvcrt.dll
+    12                                  import printf msvcrt.dll
+    13                                  
+    14                                  ; our data is declared here (the variables needed by our program)
+    15                                  segment data use32 class=data
+    16                                      ; ...
+    17 00000000 6C6574746572732E74-         file_name db "letters.txt", 0
+    17 00000009 787400             
+    18 0000000C 7200                        access_mode db  "r", 0
+    19 0000000E FFFFFFFF                    descriptor dd -1
+    20 00000012 00000000                    len dd 0
+    21 00000016 00000000                    frequent_number dd 0
+    22 0000001A FF                          frequent_element db -1
+    23 0000001B 4D6F73742066726571-         result db "Most frequent element is %c with %d appearance.", 0
+    23 00000024 75656E7420656C656D-
+    23 0000002D 656E74206973202563-
+    23 00000036 207769746820256420-
+    23 0000003F 617070656172616E63-
+    23 00000048 652E00             
+    24 0000004B <res 00000064>              text resb 100
+    25                                  ; our code starts here
+    26                                  segment code use32 class=code
+    27                                      start:
+    28                                          ; ...
+    29                                          ;opening the file
+    30 00000000 68[0C000000]                    push dword access_mode
+    31 00000005 68[00000000]                    push dword file_name
+    32 0000000A FF15[00000000]                  call [fopen]
+    33 00000010 83C408                          add esp, 4*2
+    34                                          
+    35 00000013 83F800                          cmp eax, 0
+    36 00000016 0F8482000000                    je final
+    37 0000001C A3[0E000000]                    mov [descriptor], eax
+    38                                          
+    39                                          ;reading from the file into text string
+    40 00000021 FF35[0E000000]                  push dword [descriptor]
+    41 00000027 6A64                            push dword 100
+    42 00000029 6A01                            push dword 1
+    43 0000002B 68[4B000000]                    push dword text
+    44 00000030 FF15[00000000]                  call [fread]
+    45 00000036 83C410                          add esp, 4*4
+    46                                          
+    47 00000039 A3[12000000]                    mov [len], eax ; eax = letters read
+    48 0000003E BE00000000                      mov esi, 0
+    49                                          for1:
+    50 00000043 B900000000                          mov ecx, 0
+    51 00000048 8A86[4B000000]                      mov al, [text+esi] ; al = text[esi], ++esi
+    52 0000004E 46                                  inc esi
+    53 0000004F BF00000000                          mov edi, 0
+    54                                              for2:
+    55 00000054 3A87[4B000000]                          cmp al, [text+edi]
+    56 0000005A 7501                                    jne skip
+    57                                                  ;if equal increment the number
+    58 0000005C 41                                      inc ecx
+    59                                                  
+    60                                                  skip:
+    61 0000005D 47                                      inc dword edi
+    62                                                  
+    63 0000005E 3B3D[12000000]                          cmp edi, [len]
+    64 00000064 72EE                                    jb for2
+    65                                              
+    66 00000066 3B0D[16000000]                      cmp ecx, [frequent_number]
+    67 0000006C 760B                                jbe no_update
+    68                                              
+    69 0000006E 890D[16000000]                      mov [frequent_number], ecx
+    70 00000074 A2[1A000000]                        mov [frequent_element], al
+    71                                              
+    72                                              no_update:
+    73 00000079 8B15[12000000]                      mov edx, [len]
+    74 0000007F 4A                                  dec edx
+    75 00000080 39D6                                cmp esi, edx
+    76 00000082 72BF                                jb for1
+    77                                          
+    78                                          ;printing, displaying result
+    79 00000084 FF35[16000000]                  push dword [frequent_number]
+    80 0000008A FF35[1A000000]                  push dword [frequent_element]
+    81 00000090 68[1B000000]                    push dword result
+    82 00000095 FF15[00000000]                  call [printf]
+    83 0000009B 83C404                          add esp, 4
+    84                                          final:
+    85                                          ; exit(0)
+    86 0000009E 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    87 000000A0 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

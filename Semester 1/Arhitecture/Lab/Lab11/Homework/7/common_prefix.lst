@@ -1,0 +1,28 @@
+     1                                  
+     2                                  bits 32
+     3                                  segment code use32 public code
+     4                                  global common_prefix
+     5                                  ;what this subprogram do is returns the number of common prefix elements i
+     6                                  common_prefix:
+     7 00000000 8B742404                    mov esi, [esp + 4]; first string starting address
+     8 00000004 8B7C2408                    mov edi, [esp + 8]; second string starting address
+     9 00000008 B900000000                  mov ecx, 0
+    10                                      while:
+    11 0000000D A6                              cmpsb
+    12 0000000E 750D                            jne endwhile
+    13 00000010 41                              inc ecx
+    14                                          
+    15 00000011 803E00                          cmp byte [esi], 0
+    16 00000014 7407                            je endwhile
+    17 00000016 803F00                          cmp byte [edi], 0
+    18 00000019 7402                            je endwhile
+    19 0000001B EBF0                            jmp while
+    20                                      endwhile: 
+    21                                      
+    22 0000001D 8B742404                    mov esi, [esp+4]
+    23 00000021 8B7C240C                    mov edi, [esp+12] ;result
+    24                                      for:
+    25 00000025 A4                              movsb
+    26 00000026 E2FD                        loop for
+    27 00000028 C60700                      mov byte [edi], 0 ;putting 0 at the end for the print function
+    28 0000002B C3                          ret
